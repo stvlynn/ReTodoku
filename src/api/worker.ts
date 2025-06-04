@@ -16,11 +16,13 @@ export default {
     // Initialize database service
     const dbService = new DatabaseService(env.DB);
 
-    // CORS headers
+    // CORS headers - 优化配置以支持所有必要的头信息
     const corsHeaders = {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Requested-With',
+      'Access-Control-Max-Age': '86400', // 24小时预检缓存
+      'Access-Control-Allow-Credentials': 'false',
     };
 
     // Handle CORS preflight
