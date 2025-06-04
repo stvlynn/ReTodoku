@@ -293,7 +293,7 @@ export class DatabaseService {
 
   async createNFCPostcard(postcard: Omit<NFCPostcard, 'id' | 'created_at' | 'updated_at' | 'sender' | 'recipient' | 'template' | 'postcard_hash'>): Promise<NFCPostcard> {
     const hash = generatePostcardHash();
-    const { success, meta } = await this.db.prepare(`
+    const { success } = await this.db.prepare(`
       INSERT INTO nfc_postcards (postcard_hash, sender_id, recipient_id, template_id, message, custom_image_url, is_activated, activated_at)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `).bind(
@@ -344,5 +344,13 @@ export class DatabaseService {
     if (!result) throw new Error('Failed to retrieve created photo');
     
     return result as unknown as MeetupPhoto;
+  }
+
+  async deleteNFCPostcard(id: number): Promise<void> {
+    const { success } = await this.db.prepare(`
+      DELETE FROM nfc_postcards WHERE id = ?
+    `).bind(id).run();
+
+    if (!success) throw new Error('Failed to delete NFC postcard');
   }
 } 

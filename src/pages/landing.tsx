@@ -36,7 +36,7 @@ const getPlatformName = (platform: string) => {
 };
 
 export default function Landing() {
-  const { templates, nfcPostcards, isLoading, error, getActivatedPostcards } = useDatabase();
+  const { templates, isLoading, error, getActivatedPostcards } = useDatabase();
 
   // Get latest 4 postcard templates for the request section
   const latestPostcards = templates.slice(0, 4);

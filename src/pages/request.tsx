@@ -68,8 +68,8 @@ export default function RequestPage() {
     <div className="w-full bg-neutral-50 min-h-screen">
       <div className="max-w-7xl mx-auto px-8 py-12">
         <div className="grid lg:grid-cols-[1fr_400px] gap-12">
-          {/* LEFT: postcard selector */}
-          <div>
+      {/* LEFT: postcard selector */}
+      <div>
             <h2 className="text-3xl font-bold text-gray-900 mb-8">Choose Your Postcard Design</h2>
             <div className="grid grid-cols-2 lg:grid-cols-3 gap-6">
               {templates.map((template) => (
@@ -79,11 +79,11 @@ export default function RequestPage() {
                   onClick={() => setSelectedPostcard(template.id.toString())}
                 >
                   <div className="aspect-[3/2] rounded-xl overflow-hidden shadow-md group-hover:shadow-lg transition-all duration-200">
-                    <img 
+              <img 
                       src={template.image_url} 
                       alt={template.name} 
                       className="object-cover w-full h-full"
-                    />
+              />
                   </div>
                   
                   {/* Template name */}
@@ -110,11 +110,11 @@ export default function RequestPage() {
                     <div className="absolute inset-0 border-3 border-gray-900 rounded-xl pointer-events-none"></div>
                   )}
                 </div>
-              ))}
-            </div>
-          </div>
+          ))}
+        </div>
+      </div>
 
-          {/* RIGHT: form */}
+      {/* RIGHT: form */}
           <Card className="p-8 h-fit">
             <form className="space-y-6" onSubmit={handleSubmit}>
               <h1 className="text-2xl font-bold text-gray-900">
@@ -122,7 +122,7 @@ export default function RequestPage() {
                 Request a Postcard
               </h1>
 
-              <div className="space-y-2">
+          <div className="space-y-2">
                 <Label htmlFor="name" className="text-sm font-medium text-gray-700 flex items-center">
                   <i className="ri-user-line mr-2"></i>
                   Your Name
@@ -135,9 +135,9 @@ export default function RequestPage() {
                   className="h-12"
                   required 
                 />
-              </div>
+          </div>
 
-              <div className="space-y-2">
+          <div className="space-y-2">
                 <Label htmlFor="username" className="text-sm font-medium text-gray-700 flex items-center">
                   <i className="ri-at-line mr-2"></i>
                   Preferred ID
@@ -150,18 +150,18 @@ export default function RequestPage() {
                   className="h-12"
                   required 
                 />
-              </div>
+          </div>
 
-              <div className="space-y-2">
+          <div className="space-y-2">
                 <Label htmlFor="platform" className="text-sm font-medium text-gray-700 flex items-center">
                   <i className="ri-global-line mr-2"></i>
                   Platform
                 </Label>
                 <Select value={formData.platform} onValueChange={(value) => handleInputChange('platform', value)}>
                   <SelectTrigger className="h-12">
-                    <SelectValue placeholder="Select platform" />
-                  </SelectTrigger>
-                  <SelectContent>
+                <SelectValue placeholder="Select platform" />
+              </SelectTrigger>
+              <SelectContent>
                     <SelectItem value="twitter">
                       <div className="flex items-center">
                         <i className="ri-twitter-x-line mr-2"></i>
@@ -180,17 +180,17 @@ export default function RequestPage() {
                         Email
                       </div>
                     </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+              </SelectContent>
+            </Select>
+          </div>
 
               <div className="space-y-4">
                 <Label className="text-sm font-medium text-gray-700 flex items-center">
                   <i className="ri-truck-line mr-2"></i>
                   How would you like to receive it?
                 </Label>
-                
-                <div className="space-y-3">
+
+          <div className="space-y-3">
                   <div 
                     className={cn(
                       "flex items-center space-x-3 p-4 rounded-lg border-2 cursor-pointer transition-all",
@@ -236,25 +236,25 @@ export default function RequestPage() {
                       <p className="text-sm text-gray-500 mt-1">We'll arrange a meetup to give it to you</p>
                     </div>
                   </div>
-                </div>
               </div>
+          </div>
 
-              {receiptMethod === "shipping" && (
-                <div className="space-y-2">
+          {receiptMethod === "shipping" && (
+            <div className="space-y-2">
                   <Label htmlFor="address" className="text-sm font-medium text-gray-700 flex items-center">
                     <i className="ri-map-pin-line mr-2"></i>
                     Shipping Address
                   </Label>
-                  <Textarea 
-                    id="address" 
+              <Textarea 
+                id="address" 
                     placeholder="Enter your full address..." 
                     value={formData.address}
                     onChange={(e) => handleInputChange('address', e.target.value)}
                     className="min-h-[100px]"
-                    required 
-                  />
-                </div>
-              )}
+                required
+              />
+            </div>
+          )}
 
               {receiptMethod === "meetup" && (
                 <div className="space-y-4">
@@ -292,9 +292,9 @@ export default function RequestPage() {
               <Button type="submit" className="w-full h-12 text-lg bg-gray-900 hover:bg-gray-800">
                 <i className="ri-send-plane-line mr-2"></i>
                 Submit Request
-              </Button>
-            </form>
-          </Card>
+          </Button>
+        </form>
+      </Card>
         </div>
       </div>
     </div>
