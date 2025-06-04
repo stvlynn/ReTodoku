@@ -6,26 +6,4 @@ pages_build_output_dir = "dist"
 
 # Build configuration
 [build]
-command = "npm run build"
-
-# D1 Database configuration
-[[d1_databases]]
-binding = "DB"
-database_name = "retodoku"
-database_id = "6d629a2e-281c-46c1-9acd-66a92b2cc8be"
-migrations_dir = "migrations"
-
-# Environment-specific configurations
-[env.preview]
-[[env.preview.d1_databases]]
-binding = "DB"
-database_name = "retodoku"
-database_id = "6d629a2e-281c-46c1-9acd-66a92b2cc8be"
-migrations_dir = "migrations"
-
-[env.production]
-[[env.production.d1_databases]]
-binding = "DB"
-database_name = "retodoku"
-database_id = "6d629a2e-281c-46c1-9acd-66a92b2cc8be"
-migrations_dir = "migrations" 
+command = "npm run build" 
