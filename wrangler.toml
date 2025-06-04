@@ -1,5 +1,4 @@
 name = "retodoku"
-main = "src/index.js"
 compatibility_date = "2024-01-01"
 
 # Pages configuration
@@ -13,8 +12,8 @@ database_id = "6d629a2e-281c-46c1-9acd-66a92b2cc8be"
 migrations_dir = "migrations"
 
 # Environment-specific configurations
-[env.development]
-[[env.development.d1_databases]]
+[env.preview]
+[[env.preview.d1_databases]]
 binding = "DB"
 database_name = "retodoku"
 database_id = "6d629a2e-281c-46c1-9acd-66a92b2cc8be"
