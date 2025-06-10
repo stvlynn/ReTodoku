@@ -7,6 +7,7 @@ export interface User {
   handle: string;
   platform: 'twitter' | 'telegram' | 'email' | 'other';
   slug: string; // platform-handle格式，用于用户主页URL
+  twitter_id?: string; // Twitter数字ID，用于OAuth认证
   created_at: string;
   updated_at: string;
   // avatar_url将通过getAvatarUrl函数动态生成
@@ -98,12 +99,17 @@ export class DatabaseService {
     return result as User | null;
   }
 
+  async getUserByTwitterId(twitterId: string): Promise<User | null> {
+    const result = await this.db.prepare('SELECT * FROM users WHERE twitter_id = ?').bind(twitterId).first();
+    return result as User | null;
+  }
+
   async createUser(user: Omit<User, 'id' | 'created_at' | 'updated_at' | 'slug'>): Promise<User> {
     const slug = generateSlug(user.platform, user.handle);
     const { success, meta } = await this.db.prepare(`
-      INSERT INTO users (name, handle, platform, slug)
-      VALUES (?, ?, ?, ?)
-    `).bind(user.name, user.handle, user.platform, slug).run();
+      INSERT INTO users (name, handle, platform, slug, twitter_id)
+      VALUES (?, ?, ?, ?, ?)
+    `).bind(user.name, user.handle, user.platform, slug, user.twitter_id || null).run();
 
     if (!success) throw new Error('Failed to create user');
     
@@ -111,6 +117,31 @@ export class DatabaseService {
     if (!newUser) throw new Error('Failed to retrieve created user');
     
     return newUser;
+  }
+
+  async createUserFromTwitter(twitterData: { id: string; username: string; name: string }): Promise<User> {
+    const slug = generateSlug('twitter', twitterData.username);
+    const { success, meta } = await this.db.prepare(`
+      INSERT INTO users (name, handle, platform, slug, twitter_id)
+      VALUES (?, ?, ?, ?, ?)
+    `).bind(twitterData.name, twitterData.username, 'twitter', slug, twitterData.id).run();
+
+    if (!success) throw new Error('Failed to create user from Twitter');
+    
+    const newUser = await this.getUserById(meta.last_row_id);
+    if (!newUser) throw new Error('Failed to retrieve created user');
+    
+    return newUser;
+  }
+
+  async updateUserTwitterId(userId: number, twitterId: string): Promise<void> {
+    const { success } = await this.db.prepare(`
+      UPDATE users 
+      SET twitter_id = ?, updated_at = CURRENT_TIMESTAMP
+      WHERE id = ?
+    `).bind(twitterId, userId).run();
+
+    if (!success) throw new Error('Failed to update user Twitter ID');
   }
 
   // Postcard template operations

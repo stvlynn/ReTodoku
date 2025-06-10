@@ -2,9 +2,14 @@
 // This file implements the backend API for the NFC postcard collection system
 
 import { DatabaseService } from '../lib/database';
+import { createTwitterOAuthService } from '../lib/twitter-oauth';
 
 export interface Env {
   DB: D1Database;
+  TWITTER_CONSUMER_KEY: string;
+  TWITTER_CONSUMER_SECRET: string;
+  TWITTER_CALLBACK_URL?: string;
+  FRONTEND_URL: string;
 }
 
 export default {
@@ -85,7 +90,7 @@ export default {
           return Response.json(postcard, { headers: corsHeaders });
 
         // Activate NFC postcard
-        case path.match(/^\/api\/nfc-postcards\/[^\/]+\/activate$/) && method === 'POST':
+        case path.match(/^\/api\/nfc-postcards\/[^/]+\/activate$/) && method === 'POST':
           const activateHash = path.split('/')[3];
           const activateData = await request.json();
           if (!activateHash || !activateData.recipientId) {
@@ -117,6 +122,63 @@ export default {
           const photoData = await request.json();
           const newPhoto = await dbService.createMeetupPhoto(photoData);
           return Response.json(newPhoto, { status: 201, headers: corsHeaders });
+
+        // Twitter OAuth: Get request token
+        case path === '/api/auth/twitter/request-token' && method === 'POST': {
+          const twitterOAuth = createTwitterOAuthService(env);
+          const { token, tokenSecret, authUrl } = await twitterOAuth.getRequestToken();
+          
+          // Store token secret temporarily (in production, use KV or session storage)
+          // For now, we'll include it in the response and handle it client-side
+          return Response.json({ 
+            authUrl,
+            requestToken: token,
+            requestTokenSecret: tokenSecret
+          }, { headers: corsHeaders });
+        }
+
+        // Twitter OAuth: Handle callback
+        case path === '/api/auth/twitter/callback' && method === 'POST': {
+          const callbackData = await request.json();
+          const { oauth_token, oauth_verifier, oauth_token_secret } = callbackData;
+          
+          if (!oauth_token || !oauth_verifier || !oauth_token_secret) {
+            return Response.json(
+              { error: 'Missing OAuth parameters' },
+              { status: 400, headers: corsHeaders }
+            );
+          }
+
+          const twitterService = createTwitterOAuthService(env);
+          const twitterUserData = await twitterService.completeOAuthFlow(
+            oauth_token,
+            oauth_token_secret,
+            oauth_verifier
+          );
+
+          // Check if user already exists
+          let twitterUser = await dbService.getUserByTwitterId(twitterUserData.id);
+          
+          if (!twitterUser) {
+            // Create new user from Twitter data
+            twitterUser = await dbService.createUserFromTwitter(twitterUserData);
+          }
+
+          return Response.json({ user: twitterUser }, { headers: corsHeaders });
+        }
+
+        // Get user by Twitter ID
+        case path.startsWith('/api/users/twitter/') && method === 'GET': {
+          const twitterId = path.split('/').pop();
+          if (!twitterId) {
+            return new Response('Invalid Twitter ID', { status: 400, headers: corsHeaders });
+          }
+          const twitterUser = await dbService.getUserByTwitterId(twitterId);
+          if (!twitterUser) {
+            return new Response('User not found', { status: 404, headers: corsHeaders });
+          }
+          return Response.json(twitterUser, { headers: corsHeaders });
+        }
 
         // Health check
         case path === '/api/health' && method === 'GET':

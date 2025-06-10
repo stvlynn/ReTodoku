@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Link } from "react-router-dom";
 import { useDatabase } from "@/hooks/useDatabase";
+import { useTwitterAuth } from "@/hooks/useTwitterAuth";
 import { getAvatarUrl } from "@/lib/database";
 import { format } from "date-fns";
 import tapOnPostcardImage from "@/assets/tap-on-postcard.png";
@@ -37,6 +38,7 @@ const getPlatformName = (platform: string) => {
 
 export default function Landing() {
   const { templates, isLoading, error, getActivatedPostcards } = useDatabase();
+  const { user: twitterUser, isAuthenticated, login: twitterLogin, logout: twitterLogout, isLoading: twitterLoading } = useTwitterAuth();
 
   // Get latest 4 postcard templates for the request section
   const latestPostcards = templates.slice(0, 4);
@@ -86,16 +88,71 @@ export default function Landing() {
         </div>
       </div>
 
-      {/* Main Image - 缩小尺寸 */}
+      {/* Twitter Auth Section */}
       <div className="w-full px-8 pb-16">
-        <div className="max-w-2xl mx-auto">
-          <div className="relative rounded-2xl overflow-hidden shadow-2xl">
+        <div className="max-w-md mx-auto">
+          <Card className="p-6 text-center">
+            {isAuthenticated && twitterUser ? (
+              <div className="space-y-4">
+                <div className="flex items-center justify-center gap-3">
+                  <Avatar className="w-12 h-12">
+                    <AvatarImage src={getAvatarUrl(twitterUser.platform, twitterUser.handle)} />
+                    <AvatarFallback>{twitterUser.name.charAt(0)}</AvatarFallback>
+                  </Avatar>
+                  <div className="text-left">
+                    <p className="font-semibold">{twitterUser.name}</p>
+                    <p className="text-sm text-gray-500 flex items-center">
+                      <i className={`${getPlatformIcon(twitterUser.platform)} mr-1`}></i>
+                      @{twitterUser.handle}
+                    </p>
+                  </div>
+                </div>
+                <Button 
+                  variant="outline" 
+                  onClick={twitterLogout}
+                  className="w-full"
+                >
+                  Sign Out
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <h3 className="font-semibold text-lg">Connect Your Twitter</h3>
+                <p className="text-gray-600 text-sm">
+                  Sign in with Twitter to personalize your postcard experience
+                </p>
+                <Button
+                  onClick={twitterLogin}
+                  disabled={twitterLoading}
+                  className="w-full bg-[#1DA1F2] hover:bg-[#1a91da] text-white"
+                >
+                  {twitterLoading ? (
+                    <>
+                      <i className="ri-loader-4-line mr-2 animate-spin"></i>
+                      Connecting...
+                    </>
+                  ) : (
+                    <>
+                      <i className="ri-twitter-x-line mr-2"></i>
+                      Continue with Twitter
+                    </>
+                  )}
+                </Button>
+              </div>
+            )}
+          </Card>
+        </div>
+      </div>
+
+      {/* Main Image - 缩小尺寸，移除阴影 */}
+      <div className="w-full px-8 pb-16">
+        <div className="max-w-lg mx-auto">
+          <div className="relative">
             <img 
               src={tapOnPostcardImage} 
               alt="Tap on postcard to send" 
               className="w-full h-auto object-cover"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
           </div>
         </div>
       </div>
